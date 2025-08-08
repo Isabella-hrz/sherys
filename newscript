@@ -465,42 +465,13 @@ local function findPlayerByName(name)
     return nil
 end
 
-local allActive = false
-local connections = {}
-
-Killing.Killer:AddSwitch("Good Karma Kill", function(state)
+Killing:AddSwitch("GoodKarmaKill", function(state)
     evilKarmaKill(state)
     pcall(function()
         Library:Notify("Good Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
     end)
 end)
 
--- Switch para Evil Karma Kill
-Killing.Killer:AddSwitch("Evil Karma Kill", function(state)
-    goodKarmaKill(state)
-    pcall(function()
-        Library:Notify("Evil Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
-    end)
-end)
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- Equip Punch tool
-local function equipTool(toolName)
-    local character = LocalPlayer.Character
-    local backpack = LocalPlayer.Backpack
-    if not (character and backpack) then return end
-    local tool = backpack:FindFirstChild(toolName)
-    if tool then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:EquipTool(tool)
-        end
-    end
-end
-
--- Evil Karma Kill function (targets players with more Evil Karma)
 function evilKarmaKill(state)
     getgenv().killEvil = state
     if state then
@@ -545,7 +516,13 @@ function evilKarmaKill(state)
     end
 end
 
--- Good Karma Kill function (targets players with more Good Karma)
+Killing:AddSwitch("EvilKarmaKill", function(state)
+    goodKarmaKill(state)
+    pcall(function()
+        Library:Notify("Evil Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
+    end)
+end)
+
 function goodKarmaKill(state)
     getgenv().killGood = state
     if state then
@@ -587,6 +564,19 @@ function goodKarmaKill(state)
                 task.wait(0.1)
             end
         end)
+    end
+end
+
+function equipTool(toolName)
+    local character = LocalPlayer.Character
+    local backpack = LocalPlayer.Backpack
+    if not (character and backpack) then return end
+    local tool = backpack:FindFirstChild(toolName)
+    if tool then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:EquipTool(tool)
+        end
     end
 end
 
