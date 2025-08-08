@@ -468,7 +468,7 @@ end
 local allActive = false
 local connections = {}
 
-Tabs.Killer:AddSwitch("GoodKarmaKill", function(state)
+Killing.Killer:AddSwitch("Good Karma Kill", function(state)
     evilKarmaKill(state)
     pcall(function()
         Library:Notify("Good Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
@@ -476,7 +476,7 @@ Tabs.Killer:AddSwitch("GoodKarmaKill", function(state)
 end)
 
 -- Switch para Evil Karma Kill
-Tabs.Killer:AddSwitch("EvilKarmaKill", function(state)
+Killing.Killer:AddSwitch("Evil Karma Kill", function(state)
     goodKarmaKill(state)
     pcall(function()
         Library:Notify("Evil Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
