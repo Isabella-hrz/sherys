@@ -465,29 +465,41 @@ local function findPlayerByName(name)
     return nil
 end
 
-Killing:AddSwitch("GoodKarmaKill", function(state)
-    evilKarmaKill(state)
-    pcall(function()
-        Library:Notify("Good Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
-    end)
-end)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-function evilKarmaKill(state)
+-- Función para equipar herramienta
+local function equipTool(toolName)
+    local character = LocalPlayer.Character
+    local backpack = LocalPlayer.Backpack
+    if not (character and backpack) then return end
+    local tool = backpack:FindFirstChild(toolName)
+    if tool then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:EquipTool(tool)
+        end
+    end
+end
+
+-- Función para matar "malos" (más Evil Karma)
+local function evilKarmaKill(state)
     getgenv().killEvil = state
     if state then
+        getgenv().killGood = false -- Desactiva el otro modo
         equipTool("Punch")
         task.spawn(function()
             while getgenv().killEvil do
                 local character = LocalPlayer.Character
                 local leftHand = character and character:FindFirstChild("LeftHand")
-                if not leftHand then
-                    task.wait(0.3)
-                end
+                if not leftHand then task.wait(0.3) end
+
                 local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
                 if muscleEvent then
                     muscleEvent:FireServer("punch", "rightHand")
                     muscleEvent:FireServer("punch", "leftHand")
                 end
+
                 for _, player in pairs(Players:GetPlayers()) do
                     if player ~= LocalPlayer then
                         local goodKarma = player:FindFirstChild("goodKarma")
@@ -516,29 +528,24 @@ function evilKarmaKill(state)
     end
 end
 
-Killing:AddSwitch("EvilKarmaKill", function(state)
-    goodKarmaKill(state)
-    pcall(function()
-        Library:Notify("Evil Karma Kill " .. (state and "Enabled" or "Disabled"), 2)
-    end)
-end)
-
-function goodKarmaKill(state)
+-- Función para matar "buenos" (más Good Karma)
+local function goodKarmaKill(state)
     getgenv().killGood = state
     if state then
+        getgenv().killEvil = false -- Desactiva el otro modo
         equipTool("Punch")
         task.spawn(function()
             while getgenv().killGood do
                 local character = LocalPlayer.Character
                 local leftHand = character and character:FindFirstChild("LeftHand")
-                if not leftHand then
-                    task.wait(0.3)
-                end
+                if not leftHand then task.wait(0.3) end
+
                 local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
                 if muscleEvent then
                     muscleEvent:FireServer("punch", "rightHand")
                     muscleEvent:FireServer("punch", "leftHand")
                 end
+
                 for _, player in pairs(Players:GetPlayers()) do
                     if player ~= LocalPlayer then
                         local goodKarma = player:FindFirstChild("goodKarma")
@@ -567,18 +574,25 @@ function goodKarmaKill(state)
     end
 end
 
-function equipTool(toolName)
-    local character = LocalPlayer.Character
-    local backpack = LocalPlayer.Backpack
-    if not (character and backpack) then return end
-    local tool = backpack:FindFirstChild(toolName)
-    if tool then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:EquipTool(tool)
-        end
+-- Switch Good Karma Kill (mata malos)
+Killing:AddSwitch("GoodKarmaKill", function(state)
+    evilKarmaKill(state)
+    if state then
+        Library:Notify("✅ Good Karma Kill Activado", 2)
+    else
+        Library:Notify("❌ Good Karma Kill Desactivado", 2)
     end
-end
+end)
+
+-- Switch Evil Karma Kill (mata buenos)
+Killing:AddSwitch("EvilKarmaKill", function(state)
+    goodKarmaKill(state)
+    if state then
+        Library:Notify("✅ Evil Karma Kill Activado", 2)
+    else
+        Library:Notify("❌ Evil Karma Kill Desactivado", 2)
+    end
+end)
 
 Killing:AddSwitch("Punch Death (Egg Obligatorio)", function(value)
     allActive = value
